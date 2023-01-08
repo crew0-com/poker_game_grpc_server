@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS games;
+DROP TABLE IF EXISTS game_room_players;
+DROP TABLE IF EXISTS game_rooms;
+DROP TABLE IF EXISTS players;
