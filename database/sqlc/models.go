@@ -18,14 +18,21 @@ type ActiveGame struct {
 }
 
 type Game struct {
-	GameID      uuid.UUID       `json:"game_id"`
-	GameRoomID  uuid.UUID       `json:"game_room_id"`
-	GameState   json.RawMessage `json:"game_state"`
-	Messages    json.RawMessage `json:"messages"`
-	StartedAt   sql.NullTime    `json:"started_at"`
-	FinishedAt  sql.NullTime    `json:"finished_at"`
-	HasFinished bool            `json:"has_finished"`
-	HasStarted  bool            `json:"has_started"`
+	GameID       uuid.UUID    `json:"game_id"`
+	GameRoomID   uuid.UUID    `json:"game_room_id"`
+	StartedAt    sql.NullTime `json:"started_at"`
+	FinishedAt   sql.NullTime `json:"finished_at"`
+	HasFinished  bool         `json:"has_finished"`
+	HasStarted   bool         `json:"has_started"`
+	StateVersion int32        `json:"state_version"`
+}
+
+type GameMessage struct {
+	GameID     uuid.UUID       `json:"game_id"`
+	GameRoomID uuid.UUID       `json:"game_room_id"`
+	MessageID  int32           `json:"message_id"`
+	Message    json.RawMessage `json:"message"`
+	CreatedAt  time.Time       `json:"created_at"`
 }
 
 type GameRoom struct {
@@ -38,6 +45,12 @@ type GameRoom struct {
 type GameRoomPlayer struct {
 	GameRoomID uuid.UUID `json:"game_room_id"`
 	PlayerID   uuid.UUID `json:"player_id"`
+}
+
+type GameState struct {
+	GameID  uuid.UUID       `json:"game_id"`
+	State   json.RawMessage `json:"state"`
+	Version int32           `json:"version"`
 }
 
 type Player struct {

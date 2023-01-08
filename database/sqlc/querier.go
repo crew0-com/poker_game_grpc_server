@@ -12,7 +12,7 @@ import (
 
 type Querier interface {
 	AddPlayerToGameRoom(ctx context.Context, arg AddPlayerToGameRoomParams) (GameRoomPlayer, error)
-	CreateGame(ctx context.Context, arg CreateGameParams) (Game, error)
+	CreateGame(ctx context.Context, gameRoomID uuid.UUID) (Game, error)
 	CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (GameRoom, error)
 	CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error)
 	FinishGame(ctx context.Context, gameID uuid.UUID) (Game, error)
@@ -24,7 +24,6 @@ type Querier interface {
 	SetActiveGame(ctx context.Context, gameID uuid.UUID) (ActiveGame, error)
 	StartGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 	UnsetActiveGame(ctx context.Context, gameID uuid.UUID) (UnsetActiveGameRow, error)
-	UpdateGame(ctx context.Context, arg UpdateGameParams) (Game, error)
 }
 
 var _ Querier = (*Queries)(nil)

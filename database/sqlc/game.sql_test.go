@@ -3,8 +3,6 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"github.com/crew_0/poker/internal/utils"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -20,35 +18,13 @@ func CreateRandomGamesTest(t *testing.T, gameRoomId uuid.UUID, n int) []Game {
 }
 
 func CreateGameInRoomTest(t *testing.T, gameRoomId uuid.UUID) Game {
-	gameStateJson := map[string]string{"deck": utils.RandomString(8), "players": utils.RandomString(8), "turn": utils.RandomString(8)}
-	gameMessageJson := map[string]string{"message": utils.RandomString(8)}
-	gameStateJsonBytes, _ := json.Marshal(gameStateJson)
-	gameMessageJsonBytes, _ := json.Marshal(gameMessageJson)
-
-	rawGameMessageJSON := json.RawMessage(gameMessageJsonBytes)
-	rawGameStateJSON := json.RawMessage(gameStateJsonBytes)
-	arg := CreateGameParams{
-		GameState:  rawGameStateJSON,
-		Messages:   rawGameMessageJSON,
-		GameRoomID: gameRoomId,
-	}
-	game, err := testQueries.CreateGame(context.Background(), arg)
+	game, err := testQueries.CreateGame(context.Background(), gameRoomId)
 	require.NoError(t, err)
 	require.NotEmpty(t, game)
 
 	require.False(t, game.HasStarted)
 	require.False(t, game.HasFinished)
 	require.Equal(t, game.GameRoomID, gameRoomId)
-
-	var gotGameState map[string]string
-	err = json.Unmarshal(game.GameState, &gotGameState)
-	require.NoError(t, err)
-	require.Equal(t, gotGameState, gameStateJson)
-
-	var gotGameMessage map[string]string
-	err = json.Unmarshal(game.Messages, &gotGameMessage)
-	require.NoError(t, err)
-	require.Equal(t, gotGameMessage, gameMessageJson)
 
 	return game
 }
@@ -113,40 +89,6 @@ func TestQueries_StartGame(t *testing.T) {
 	require.True(t, gotGame.HasStarted)
 	require.True(t, gotGame.StartedAt.Valid)
 	require.WithinDuration(t, time.Now(), gotGame.StartedAt.Time, 100*time.Millisecond)
-}
-
-func TestQueries_UpdateGame(t *testing.T) {
-	game := CreateRandomGameTest(t)
-
-	gameStateJson := map[string]string{"deck": utils.RandomString(8), "players": utils.RandomString(8), "turn": utils.RandomString(8)}
-	gameMessageJson := map[string]string{"message": utils.RandomString(8)}
-	gameStateJsonBytes, _ := json.Marshal(gameStateJson)
-	gameMessageJsonBytes, _ := json.Marshal(gameMessageJson)
-
-	rawGameMessageJSON := json.RawMessage(gameMessageJsonBytes)
-	rawGameStateJSON := json.RawMessage(gameStateJsonBytes)
-
-	arg := UpdateGameParams{
-		GameID:    game.GameID,
-		GameState: rawGameStateJSON,
-		Messages:  rawGameMessageJSON,
-	}
-
-	gotGame, err := testQueries.UpdateGame(context.Background(), arg)
-	require.NoError(t, err)
-	require.NotEmpty(t, gotGame)
-	require.Equal(t, game.GameID, gotGame.GameID)
-	require.Equal(t, game.GameRoomID, gotGame.GameRoomID)
-
-	var gotGameState map[string]string
-	err = json.Unmarshal(gotGame.GameState, &gotGameState)
-	require.NoError(t, err)
-	require.Equal(t, gotGameState, gameStateJson)
-
-	var gotGameMessage map[string]string
-	err = json.Unmarshal(gotGame.Messages, &gotGameMessage)
-	require.NoError(t, err)
-	require.Equal(t, gotGameMessage, gameMessageJson)
 }
 
 func TestQueries_SetActiveGame(t *testing.T) {

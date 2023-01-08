@@ -63,9 +63,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.unsetActiveGameStmt, err = db.PrepareContext(ctx, unsetActiveGame); err != nil {
 		return nil, fmt.Errorf("error preparing query UnsetActiveGame: %w", err)
 	}
-	if q.updateGameStmt, err = db.PrepareContext(ctx, updateGame); err != nil {
-		return nil, fmt.Errorf("error preparing query UpdateGame: %w", err)
-	}
 	return &q, nil
 }
 
@@ -136,11 +133,6 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing unsetActiveGameStmt: %w", cerr)
 		}
 	}
-	if q.updateGameStmt != nil {
-		if cerr := q.updateGameStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing updateGameStmt: %w", cerr)
-		}
-	}
 	return err
 }
 
@@ -193,7 +185,6 @@ type Queries struct {
 	setActiveGameStmt            *sql.Stmt
 	startGameStmt                *sql.Stmt
 	unsetActiveGameStmt          *sql.Stmt
-	updateGameStmt               *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -213,6 +204,5 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		setActiveGameStmt:            q.setActiveGameStmt,
 		startGameStmt:                q.startGameStmt,
 		unsetActiveGameStmt:          q.unsetActiveGameStmt,
-		updateGameStmt:               q.updateGameStmt,
 	}
 }
