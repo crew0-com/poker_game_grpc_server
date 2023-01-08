@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package="github.com/crew_0/poker/internal/grpc/pb";
+message HelloWorldRequest {
+    string name = 1;
+}
+
+message HelloWorldResponse {
+    string message = 1;
+}
+

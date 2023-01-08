@@ -23,4 +23,13 @@ server:
 	make migrate_up
 	go run main.go
 
-.PHONY: postgres createdb dropdb migration_create migrate_up migrate_down sqlc server
+make evans:
+	evans -r repl
+
+proto:
+	rm -f internal/grpc/pb/*.go
+	protoc --proto_path=internal/grpc/proto --go_out=internal/grpc/pb --go_opt=paths=source_relative \
+	--go-grpc_out=internal/grpc/pb --go-grpc_opt=paths=source_relative \
+	internal/grpc/proto/*.proto
+
+.PHONY: postgres createdb dropdb migration_create migrate_up migrate_down sqlc server proto evans
