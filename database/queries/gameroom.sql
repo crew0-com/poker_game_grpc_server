@@ -1,5 +1,5 @@
 -- name: CreateGameRoom :one
-INSERT INTO game_rooms(game_room_id, name) values ($1, $2) returning *;
+INSERT INTO game_rooms(created_by) values ($1) returning *;
 
 -- name: GetGameRoom :one
 SELECT * FROM game_rooms WHERE game_room_id = $1;

@@ -13,15 +13,15 @@ import (
 type Querier interface {
 	AddGameRoomPlayer(ctx context.Context, arg AddGameRoomPlayerParams) (GameRoomPlayer, error)
 	CreateGame(ctx context.Context, arg CreateGameParams) (Game, error)
-	CreateGameRoom(ctx context.Context, arg CreateGameRoomParams) (GameRoom, error)
+	CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (GameRoom, error)
 	CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error)
-	Finish(ctx context.Context, id uuid.UUID) error
+	Finish(ctx context.Context, gameID uuid.UUID) error
 	GetActiveGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error)
-	GetGame(ctx context.Context, id uuid.UUID) (Game, error)
+	GetGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 	GetGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error)
 	GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRoom, error)
 	GetPlayer(ctx context.Context, playerID uuid.UUID) (Player, error)
-	StartGame(ctx context.Context, id uuid.UUID) error
+	StartGame(ctx context.Context, gameID uuid.UUID) error
 	UpdateGame(ctx context.Context, arg UpdateGameParams) error
 }
 

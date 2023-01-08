@@ -13,7 +13,7 @@ import (
 )
 
 type Game struct {
-	ID         uuid.UUID       `json:"id"`
+	GameID     uuid.UUID       `json:"game_id"`
 	GameRoomID uuid.UUID       `json:"game_room_id"`
 	GameState  json.RawMessage `json:"game_state"`
 	Messages   json.RawMessage `json:"messages"`
@@ -25,7 +25,7 @@ type Game struct {
 
 type GameRoom struct {
 	GameRoomID uuid.UUID    `json:"game_room_id"`
-	Name       string       `json:"name"`
+	CreatedBy  uuid.UUID    `json:"created_by"`
 	CreatedAt  time.Time    `json:"created_at"`
 	ClosedAt   sql.NullTime `json:"closed_at"`
 }

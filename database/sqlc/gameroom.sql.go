@@ -28,20 +28,15 @@ func (q *Queries) AddGameRoomPlayer(ctx context.Context, arg AddGameRoomPlayerPa
 }
 
 const createGameRoom = `-- name: CreateGameRoom :one
-INSERT INTO game_rooms(game_room_id, name) values ($1, $2) returning game_room_id, name, created_at, closed_at
+INSERT INTO game_rooms(created_by) values ($1) returning game_room_id, created_by, created_at, closed_at
 `
 
-type CreateGameRoomParams struct {
-	GameRoomID uuid.UUID `json:"game_room_id"`
-	Name       string    `json:"name"`
-}
-
-func (q *Queries) CreateGameRoom(ctx context.Context, arg CreateGameRoomParams) (GameRoom, error) {
-	row := q.queryRow(ctx, q.createGameRoomStmt, createGameRoom, arg.GameRoomID, arg.Name)
+func (q *Queries) CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (GameRoom, error) {
+	row := q.queryRow(ctx, q.createGameRoomStmt, createGameRoom, createdBy)
 	var i GameRoom
 	err := row.Scan(
 		&i.GameRoomID,
-		&i.Name,
+		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.ClosedAt,
 	)
@@ -49,7 +44,7 @@ func (q *Queries) CreateGameRoom(ctx context.Context, arg CreateGameRoomParams) 
 }
 
 const getGameRoom = `-- name: GetGameRoom :one
-SELECT game_room_id, name, created_at, closed_at FROM game_rooms WHERE game_room_id = $1
+SELECT game_room_id, created_by, created_at, closed_at FROM game_rooms WHERE game_room_id = $1
 `
 
 func (q *Queries) GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRoom, error) {
@@ -57,7 +52,7 @@ func (q *Queries) GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRo
 	var i GameRoom
 	err := row.Scan(
 		&i.GameRoomID,
-		&i.Name,
+		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.ClosedAt,
 	)
