@@ -10,10 +10,10 @@ import (
 type Server struct {
 	pb.UnimplementedPokerServiceServer
 	c     config.Config
-	store db.Queries
+	store db.Store
 }
 
-func NewServer(c config.Config, store db.Queries) (*Server, error) {
+func NewServer(c config.Config, store db.Store) (*Server, error) {
 	server := &Server{
 		c:     c,
 		store: store,

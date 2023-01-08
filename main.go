@@ -25,12 +25,12 @@ func main() {
 		log.Fatalf("cannot connect to db: %v", err)
 	}
 
-	store := db.New(conn)
+	store := db.NewStore(conn)
 	runGrpcServer(c, store)
 }
 
-func runGrpcServer(c config.Config, store *db.Queries) {
-	server, err := api.NewServer(c, *store)
+func runGrpcServer(c config.Config, store db.Store) {
+	server, err := api.NewServer(c, store)
 	if err != nil {
 		log.Fatalf("cannot create server: %v", err)
 	}
