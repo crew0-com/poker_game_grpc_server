@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.addGameMessageStmt, err = db.PrepareContext(ctx, addGameMessage); err != nil {
+		return nil, fmt.Errorf("error preparing query AddGameMessage: %w", err)
+	}
 	if q.addPlayerToGameRoomStmt, err = db.PrepareContext(ctx, addPlayerToGameRoom); err != nil {
 		return nil, fmt.Errorf("error preparing query AddPlayerToGameRoom: %w", err)
 	}
@@ -45,6 +48,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getGameStmt, err = db.PrepareContext(ctx, getGame); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGame: %w", err)
 	}
+	if q.getGameMessagesStmt, err = db.PrepareContext(ctx, getGameMessages); err != nil {
+		return nil, fmt.Errorf("error preparing query GetGameMessages: %w", err)
+	}
 	if q.getGameRoomAndPlayerRowsStmt, err = db.PrepareContext(ctx, getGameRoomAndPlayerRows); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGameRoomAndPlayerRows: %w", err)
 	}
@@ -53,6 +59,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getPlayerStmt, err = db.PrepareContext(ctx, getPlayer); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPlayer: %w", err)
+	}
+	if q.paginatedGameMessageByGameRoomStmt, err = db.PrepareContext(ctx, paginatedGameMessageByGameRoom); err != nil {
+		return nil, fmt.Errorf("error preparing query PaginatedGameMessageByGameRoom: %w", err)
+	}
+	if q.paginatedGameMessagesStmt, err = db.PrepareContext(ctx, paginatedGameMessages); err != nil {
+		return nil, fmt.Errorf("error preparing query PaginatedGameMessages: %w", err)
 	}
 	if q.setActiveGameStmt, err = db.PrepareContext(ctx, setActiveGame); err != nil {
 		return nil, fmt.Errorf("error preparing query SetActiveGame: %w", err)
@@ -68,6 +80,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.addGameMessageStmt != nil {
+		if cerr := q.addGameMessageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing addGameMessageStmt: %w", cerr)
+		}
+	}
 	if q.addPlayerToGameRoomStmt != nil {
 		if cerr := q.addPlayerToGameRoomStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing addPlayerToGameRoomStmt: %w", cerr)
@@ -103,6 +120,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getGameStmt: %w", cerr)
 		}
 	}
+	if q.getGameMessagesStmt != nil {
+		if cerr := q.getGameMessagesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getGameMessagesStmt: %w", cerr)
+		}
+	}
 	if q.getGameRoomAndPlayerRowsStmt != nil {
 		if cerr := q.getGameRoomAndPlayerRowsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getGameRoomAndPlayerRowsStmt: %w", cerr)
@@ -116,6 +138,16 @@ func (q *Queries) Close() error {
 	if q.getPlayerStmt != nil {
 		if cerr := q.getPlayerStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getPlayerStmt: %w", cerr)
+		}
+	}
+	if q.paginatedGameMessageByGameRoomStmt != nil {
+		if cerr := q.paginatedGameMessageByGameRoomStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing paginatedGameMessageByGameRoomStmt: %w", cerr)
+		}
+	}
+	if q.paginatedGameMessagesStmt != nil {
+		if cerr := q.paginatedGameMessagesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing paginatedGameMessagesStmt: %w", cerr)
 		}
 	}
 	if q.setActiveGameStmt != nil {
@@ -170,39 +202,47 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                           DBTX
-	tx                           *sql.Tx
-	addPlayerToGameRoomStmt      *sql.Stmt
-	createGameStmt               *sql.Stmt
-	createGameRoomStmt           *sql.Stmt
-	createPlayerStmt             *sql.Stmt
-	finishGameStmt               *sql.Stmt
-	getActiveGameStmt            *sql.Stmt
-	getGameStmt                  *sql.Stmt
-	getGameRoomAndPlayerRowsStmt *sql.Stmt
-	getGamesByRoomIdStmt         *sql.Stmt
-	getPlayerStmt                *sql.Stmt
-	setActiveGameStmt            *sql.Stmt
-	startGameStmt                *sql.Stmt
-	unsetActiveGameStmt          *sql.Stmt
+	db                                 DBTX
+	tx                                 *sql.Tx
+	addGameMessageStmt                 *sql.Stmt
+	addPlayerToGameRoomStmt            *sql.Stmt
+	createGameStmt                     *sql.Stmt
+	createGameRoomStmt                 *sql.Stmt
+	createPlayerStmt                   *sql.Stmt
+	finishGameStmt                     *sql.Stmt
+	getActiveGameStmt                  *sql.Stmt
+	getGameStmt                        *sql.Stmt
+	getGameMessagesStmt                *sql.Stmt
+	getGameRoomAndPlayerRowsStmt       *sql.Stmt
+	getGamesByRoomIdStmt               *sql.Stmt
+	getPlayerStmt                      *sql.Stmt
+	paginatedGameMessageByGameRoomStmt *sql.Stmt
+	paginatedGameMessagesStmt          *sql.Stmt
+	setActiveGameStmt                  *sql.Stmt
+	startGameStmt                      *sql.Stmt
+	unsetActiveGameStmt                *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                           tx,
-		tx:                           tx,
-		addPlayerToGameRoomStmt:      q.addPlayerToGameRoomStmt,
-		createGameStmt:               q.createGameStmt,
-		createGameRoomStmt:           q.createGameRoomStmt,
-		createPlayerStmt:             q.createPlayerStmt,
-		finishGameStmt:               q.finishGameStmt,
-		getActiveGameStmt:            q.getActiveGameStmt,
-		getGameStmt:                  q.getGameStmt,
-		getGameRoomAndPlayerRowsStmt: q.getGameRoomAndPlayerRowsStmt,
-		getGamesByRoomIdStmt:         q.getGamesByRoomIdStmt,
-		getPlayerStmt:                q.getPlayerStmt,
-		setActiveGameStmt:            q.setActiveGameStmt,
-		startGameStmt:                q.startGameStmt,
-		unsetActiveGameStmt:          q.unsetActiveGameStmt,
+		db:                                 tx,
+		tx:                                 tx,
+		addGameMessageStmt:                 q.addGameMessageStmt,
+		addPlayerToGameRoomStmt:            q.addPlayerToGameRoomStmt,
+		createGameStmt:                     q.createGameStmt,
+		createGameRoomStmt:                 q.createGameRoomStmt,
+		createPlayerStmt:                   q.createPlayerStmt,
+		finishGameStmt:                     q.finishGameStmt,
+		getActiveGameStmt:                  q.getActiveGameStmt,
+		getGameStmt:                        q.getGameStmt,
+		getGameMessagesStmt:                q.getGameMessagesStmt,
+		getGameRoomAndPlayerRowsStmt:       q.getGameRoomAndPlayerRowsStmt,
+		getGamesByRoomIdStmt:               q.getGamesByRoomIdStmt,
+		getPlayerStmt:                      q.getPlayerStmt,
+		paginatedGameMessageByGameRoomStmt: q.paginatedGameMessageByGameRoomStmt,
+		paginatedGameMessagesStmt:          q.paginatedGameMessagesStmt,
+		setActiveGameStmt:                  q.setActiveGameStmt,
+		startGameStmt:                      q.startGameStmt,
+		unsetActiveGameStmt:                q.unsetActiveGameStmt,
 	}
 }

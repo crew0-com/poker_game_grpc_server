@@ -16,7 +16,7 @@ CREATE TABLE game_messages
 (
     game_id UUID  NOT NULL,
     game_room_id UUID NOT NULL,
-    message_id SERIAL NOT NULL,
+    message_id BIGSERIAL NOT NULL,
     message JSONB NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     primary key (game_id, message_id),

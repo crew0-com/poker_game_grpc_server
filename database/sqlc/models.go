@@ -30,7 +30,7 @@ type Game struct {
 type GameMessage struct {
 	GameID     uuid.UUID       `json:"game_id"`
 	GameRoomID uuid.UUID       `json:"game_room_id"`
-	MessageID  int32           `json:"message_id"`
+	MessageID  int64           `json:"message_id"`
 	Message    json.RawMessage `json:"message"`
 	CreatedAt  time.Time       `json:"created_at"`
 }

@@ -11,6 +11,8 @@ import (
 )
 
 type Querier interface {
+	// desc: Adds a game message
+	AddGameMessage(ctx context.Context, arg AddGameMessageParams) (GameMessage, error)
 	AddPlayerToGameRoom(ctx context.Context, arg AddPlayerToGameRoomParams) (GameRoomPlayer, error)
 	CreateGame(ctx context.Context, gameRoomID uuid.UUID) (Game, error)
 	CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (GameRoom, error)
@@ -18,9 +20,14 @@ type Querier interface {
 	FinishGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 	GetActiveGame(ctx context.Context, gameRoomID uuid.UUID) (Game, error)
 	GetGame(ctx context.Context, gameID uuid.UUID) (Game, error)
+	// desc: Returns all game messages
+	GetGameMessages(ctx context.Context, gameID uuid.UUID) ([]GameMessage, error)
 	GetGameRoomAndPlayerRows(ctx context.Context, gameRoomID uuid.UUID) ([]GetGameRoomAndPlayerRowsRow, error)
 	GetGamesByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error)
 	GetPlayer(ctx context.Context, playerID uuid.UUID) (Player, error)
+	PaginatedGameMessageByGameRoom(ctx context.Context, arg PaginatedGameMessageByGameRoomParams) ([]GameMessage, error)
+	// desc: Returns a page of game messages
+	PaginatedGameMessages(ctx context.Context, arg PaginatedGameMessagesParams) ([]GameMessage, error)
 	SetActiveGame(ctx context.Context, gameID uuid.UUID) (ActiveGame, error)
 	StartGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 	UnsetActiveGame(ctx context.Context, gameID uuid.UUID) (UnsetActiveGameRow, error)
