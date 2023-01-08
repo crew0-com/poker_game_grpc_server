@@ -16,4 +16,7 @@ migrate_up:
 migrate_down:
 	migrate	-path database/migrations -database "postgresql://root:secret@localhost:5432/crew0_poker?sslmode=disable" -verbose down
 
-.PHONY: postgres createdb dropdb migration_create migrate_up migrate_down
+sqlc:
+	sqlc generate
+
+.PHONY: postgres createdb dropdb migration_create migrate_up migrate_down sqlc
