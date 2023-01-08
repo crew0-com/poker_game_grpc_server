@@ -66,6 +66,30 @@ func (q *Queries) FinishGame(ctx context.Context, gameID uuid.UUID) (Game, error
 	return i, err
 }
 
+const getActiveGame = `-- name: GetActiveGame :one
+SELECT games.game_id, games.game_room_id, games.game_state, games.messages, games.started_at, games.finished_at, games.has_finished, games.has_started
+FROM game_rooms
+         JOIN active_games ON active_games.game_room_id = game_rooms.game_room_id
+         JOIN games ON games.game_id = active_games.game_id
+WHERE game_rooms.game_room_id = $1
+`
+
+func (q *Queries) GetActiveGame(ctx context.Context, gameRoomID uuid.UUID) (Game, error) {
+	row := q.queryRow(ctx, q.getActiveGameStmt, getActiveGame, gameRoomID)
+	var i Game
+	err := row.Scan(
+		&i.GameID,
+		&i.GameRoomID,
+		&i.GameState,
+		&i.Messages,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.HasFinished,
+		&i.HasStarted,
+	)
+	return i, err
+}
+
 const getGame = `-- name: GetGame :one
 SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, has_finished, has_started FROM games WHERE game_id = $1
 `
@@ -122,6 +146,18 @@ func (q *Queries) GetGamesByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([
 	return items, nil
 }
 
+const setActiveGame = `-- name: SetActiveGame :one
+INSERT INTO active_games(game_room_id, game_id)
+SELECT games.game_room_id, games.game_id FROM games where games.game_id = $1 returning game_room_id, game_id
+`
+
+func (q *Queries) SetActiveGame(ctx context.Context, gameID uuid.UUID) (ActiveGame, error) {
+	row := q.queryRow(ctx, q.setActiveGameStmt, setActiveGame, gameID)
+	var i ActiveGame
+	err := row.Scan(&i.GameRoomID, &i.GameID)
+	return i, err
+}
+
 const startGame = `-- name: StartGame :one
 UPDATE games SET has_started = true, started_at = now() WHERE game_id = $1 returning game_id, game_room_id, game_state, messages, started_at, finished_at, has_finished, has_started
 `
@@ -139,6 +175,22 @@ func (q *Queries) StartGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 		&i.HasFinished,
 		&i.HasStarted,
 	)
+	return i, err
+}
+
+const unsetActiveGame = `-- name: UnsetActiveGame :one
+DELETE FROM active_games WHERE game_id = $1 returning active_games.game_id, active_games.game_room_id
+`
+
+type UnsetActiveGameRow struct {
+	GameID     uuid.UUID `json:"game_id"`
+	GameRoomID uuid.UUID `json:"game_room_id"`
+}
+
+func (q *Queries) UnsetActiveGame(ctx context.Context, gameID uuid.UUID) (UnsetActiveGameRow, error) {
+	row := q.queryRow(ctx, q.unsetActiveGameStmt, unsetActiveGame, gameID)
+	var i UnsetActiveGameRow
+	err := row.Scan(&i.GameID, &i.GameRoomID)
 	return i, err
 }
 

@@ -16,11 +16,14 @@ type Querier interface {
 	CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (GameRoom, error)
 	CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error)
 	FinishGame(ctx context.Context, gameID uuid.UUID) (Game, error)
+	GetActiveGame(ctx context.Context, gameRoomID uuid.UUID) (Game, error)
 	GetGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 	GetGameRoomAndPlayerRows(ctx context.Context, gameRoomID uuid.UUID) ([]GetGameRoomAndPlayerRowsRow, error)
 	GetGamesByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error)
 	GetPlayer(ctx context.Context, playerID uuid.UUID) (Player, error)
+	SetActiveGame(ctx context.Context, gameID uuid.UUID) (ActiveGame, error)
 	StartGame(ctx context.Context, gameID uuid.UUID) (Game, error)
+	UnsetActiveGame(ctx context.Context, gameID uuid.UUID) (UnsetActiveGameRow, error)
 	UpdateGame(ctx context.Context, arg UpdateGameParams) (Game, error)
 }
 

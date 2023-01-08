@@ -39,6 +39,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.finishGameStmt, err = db.PrepareContext(ctx, finishGame); err != nil {
 		return nil, fmt.Errorf("error preparing query FinishGame: %w", err)
 	}
+	if q.getActiveGameStmt, err = db.PrepareContext(ctx, getActiveGame); err != nil {
+		return nil, fmt.Errorf("error preparing query GetActiveGame: %w", err)
+	}
 	if q.getGameStmt, err = db.PrepareContext(ctx, getGame); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGame: %w", err)
 	}
@@ -51,8 +54,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getPlayerStmt, err = db.PrepareContext(ctx, getPlayer); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPlayer: %w", err)
 	}
+	if q.setActiveGameStmt, err = db.PrepareContext(ctx, setActiveGame); err != nil {
+		return nil, fmt.Errorf("error preparing query SetActiveGame: %w", err)
+	}
 	if q.startGameStmt, err = db.PrepareContext(ctx, startGame); err != nil {
 		return nil, fmt.Errorf("error preparing query StartGame: %w", err)
+	}
+	if q.unsetActiveGameStmt, err = db.PrepareContext(ctx, unsetActiveGame); err != nil {
+		return nil, fmt.Errorf("error preparing query UnsetActiveGame: %w", err)
 	}
 	if q.updateGameStmt, err = db.PrepareContext(ctx, updateGame); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateGame: %w", err)
@@ -87,6 +96,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing finishGameStmt: %w", cerr)
 		}
 	}
+	if q.getActiveGameStmt != nil {
+		if cerr := q.getActiveGameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getActiveGameStmt: %w", cerr)
+		}
+	}
 	if q.getGameStmt != nil {
 		if cerr := q.getGameStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getGameStmt: %w", cerr)
@@ -107,9 +121,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getPlayerStmt: %w", cerr)
 		}
 	}
+	if q.setActiveGameStmt != nil {
+		if cerr := q.setActiveGameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing setActiveGameStmt: %w", cerr)
+		}
+	}
 	if q.startGameStmt != nil {
 		if cerr := q.startGameStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing startGameStmt: %w", cerr)
+		}
+	}
+	if q.unsetActiveGameStmt != nil {
+		if cerr := q.unsetActiveGameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing unsetActiveGameStmt: %w", cerr)
 		}
 	}
 	if q.updateGameStmt != nil {
@@ -161,11 +185,14 @@ type Queries struct {
 	createGameRoomStmt           *sql.Stmt
 	createPlayerStmt             *sql.Stmt
 	finishGameStmt               *sql.Stmt
+	getActiveGameStmt            *sql.Stmt
 	getGameStmt                  *sql.Stmt
 	getGameRoomAndPlayerRowsStmt *sql.Stmt
 	getGamesByRoomIdStmt         *sql.Stmt
 	getPlayerStmt                *sql.Stmt
+	setActiveGameStmt            *sql.Stmt
 	startGameStmt                *sql.Stmt
+	unsetActiveGameStmt          *sql.Stmt
 	updateGameStmt               *sql.Stmt
 }
 
@@ -178,11 +205,14 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createGameRoomStmt:           q.createGameRoomStmt,
 		createPlayerStmt:             q.createPlayerStmt,
 		finishGameStmt:               q.finishGameStmt,
+		getActiveGameStmt:            q.getActiveGameStmt,
 		getGameStmt:                  q.getGameStmt,
 		getGameRoomAndPlayerRowsStmt: q.getGameRoomAndPlayerRowsStmt,
 		getGamesByRoomIdStmt:         q.getGamesByRoomIdStmt,
 		getPlayerStmt:                q.getPlayerStmt,
+		setActiveGameStmt:            q.setActiveGameStmt,
 		startGameStmt:                q.startGameStmt,
+		unsetActiveGameStmt:          q.unsetActiveGameStmt,
 		updateGameStmt:               q.updateGameStmt,
 	}
 }

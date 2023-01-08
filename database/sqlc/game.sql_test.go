@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/crew_0/poker/internal/utils"
 	"github.com/google/uuid"
@@ -146,4 +147,77 @@ func TestQueries_UpdateGame(t *testing.T) {
 	err = json.Unmarshal(gotGame.Messages, &gotGameMessage)
 	require.NoError(t, err)
 	require.Equal(t, gotGameMessage, gameMessageJson)
+}
+
+func TestQueries_SetActiveGame(t *testing.T) {
+	t.Run("set active game", func(t *testing.T) {
+		gameRoom := CreateRandomGameRoomTest(t)
+		game := CreateGameInRoomTest(t, gameRoom.GameRoomID)
+
+		retVal, err := testQueries.SetActiveGame(context.Background(), game.GameID)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, retVal)
+		require.Equal(t, game.GameID, retVal.GameID)
+		require.Equal(t, game.GameRoomID, retVal.GameRoomID)
+	})
+
+	t.Run("return error if game is set as active for a room that has an active game", func(t *testing.T) {
+		gameRoom := CreateRandomGameRoomTest(t)
+		game := CreateGameInRoomTest(t, gameRoom.GameRoomID)
+		_, err := testQueries.SetActiveGame(context.Background(), game.GameID)
+		require.NoError(t, err)
+
+		anotherGame := CreateGameInRoomTest(t, gameRoom.GameRoomID)
+		_, err = testQueries.SetActiveGame(context.Background(), anotherGame.GameID)
+
+		require.Error(t, err)
+	})
+}
+
+func TestQueries_GetActiveGame(t *testing.T) {
+	t.Run("get active game", func(t *testing.T) {
+		gameRoom := CreateRandomGameRoomTest(t)
+		game := CreateGameInRoomTest(t, gameRoom.GameRoomID)
+		_, err := testQueries.SetActiveGame(context.Background(), game.GameID)
+		require.NoError(t, err)
+
+		retVal, err := testQueries.GetActiveGame(context.Background(), gameRoom.GameRoomID)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, retVal)
+		require.Equal(t, game, retVal)
+	})
+
+	t.Run("return error if no active game is found", func(t *testing.T) {
+		gameRoom := CreateRandomGameRoomTest(t)
+		_, err := testQueries.GetActiveGame(context.Background(), gameRoom.GameRoomID)
+
+		require.Error(t, err)
+		require.EqualError(t, sql.ErrNoRows, err.Error())
+	})
+}
+
+func TestQueries_UnsetActiveGame(t *testing.T) {
+	t.Run("unset active game", func(t *testing.T) {
+		gameRoom := CreateRandomGameRoomTest(t)
+		game := CreateGameInRoomTest(t, gameRoom.GameRoomID)
+		_, err := testQueries.SetActiveGame(context.Background(), game.GameID)
+		require.NoError(t, err)
+
+		_, err = testQueries.UnsetActiveGame(context.Background(), game.GameID)
+		require.NoError(t, err)
+
+		_, err = testQueries.GetActiveGame(context.Background(), gameRoom.GameRoomID)
+		require.Error(t, err)
+		require.EqualError(t, sql.ErrNoRows, err.Error())
+	})
+
+	t.Run("return error if no active game is found", func(t *testing.T) {
+		gameRoom := CreateRandomGameRoomTest(t)
+		_, err := testQueries.UnsetActiveGame(context.Background(), gameRoom.GameRoomID)
+
+		require.Error(t, err)
+		require.EqualError(t, sql.ErrNoRows, err.Error())
+	})
 }
