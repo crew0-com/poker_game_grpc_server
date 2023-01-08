@@ -14,7 +14,7 @@ type GetOrCreatePlayerParams struct {
 type Store interface {
 	Querier
 	GetOrCreatePlayer(ctx context.Context, arg GetOrCreatePlayerParams) (Player, error)
-	GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRoomWithPlayers, error)
+	GetGameRoomWithPlayers(ctx context.Context, gameRoomID uuid.UUID) (GameRoomWithPlayers, error)
 }
 
 type SQLStore struct {
@@ -55,8 +55,8 @@ type GameRoomWithPlayers struct {
 	Players   []Player
 }
 
-func (store *SQLStore) GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (gameRoom GameRoomWithPlayers, err error) {
-	gameRoomRows, err := store.Queries.GetGameRoomWithPlayers(ctx, gameRoomID)
+func (store *SQLStore) GetGameRoomWithPlayers(ctx context.Context, gameRoomID uuid.UUID) (gameRoom GameRoomWithPlayers, err error) {
+	gameRoomRows, err := store.Queries.GetGameRoomAndPlayerRows(ctx, gameRoomID)
 	if err != nil {
 		return
 	}

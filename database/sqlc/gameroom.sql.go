@@ -45,7 +45,7 @@ func (q *Queries) CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (Game
 	return i, err
 }
 
-const getGameRoomWithPlayers = `-- name: GetGameRoomWithPlayers :many
+const getGameRoomAndPlayerRows = `-- name: GetGameRoomAndPlayerRows :many
 SELECT game_rooms.game_room_id AS gameroom_id, game_rooms.created_at, game_rooms.created_by, game_rooms.closed_at, players.name, players.player_id
 FROM game_rooms
          JOIN game_room_players ON game_room_players.game_room_id = game_rooms.game_room_id
@@ -53,7 +53,7 @@ FROM game_rooms
 WHERE game_rooms.game_room_id = $1
 `
 
-type GetGameRoomWithPlayersRow struct {
+type GetGameRoomAndPlayerRowsRow struct {
 	GameroomID uuid.UUID    `json:"gameroom_id"`
 	CreatedAt  time.Time    `json:"created_at"`
 	CreatedBy  uuid.UUID    `json:"created_by"`
@@ -62,15 +62,15 @@ type GetGameRoomWithPlayersRow struct {
 	PlayerID   uuid.UUID    `json:"player_id"`
 }
 
-func (q *Queries) GetGameRoomWithPlayers(ctx context.Context, gameRoomID uuid.UUID) ([]GetGameRoomWithPlayersRow, error) {
-	rows, err := q.query(ctx, q.getGameRoomWithPlayersStmt, getGameRoomWithPlayers, gameRoomID)
+func (q *Queries) GetGameRoomAndPlayerRows(ctx context.Context, gameRoomID uuid.UUID) ([]GetGameRoomAndPlayerRowsRow, error) {
+	rows, err := q.query(ctx, q.getGameRoomAndPlayerRowsStmt, getGameRoomAndPlayerRows, gameRoomID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetGameRoomWithPlayersRow{}
+	items := []GetGameRoomAndPlayerRowsRow{}
 	for rows.Next() {
-		var i GetGameRoomWithPlayersRow
+		var i GetGameRoomAndPlayerRowsRow
 		if err := rows.Scan(
 			&i.GameroomID,
 			&i.CreatedAt,
