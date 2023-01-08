@@ -19,4 +19,8 @@ migrate_down:
 sqlc:
 	sqlc generate
 
-.PHONY: postgres createdb dropdb migration_create migrate_up migrate_down sqlc
+server:
+	make migrate_up
+	go run main.go
+
+.PHONY: postgres createdb dropdb migration_create migrate_up migrate_down sqlc server
