@@ -14,24 +14,24 @@ import (
 
 const createGame = `-- name: CreateGame :one
 INSERT INTO games(
-                  game_room_id,
                   game_state,
-                  messages
+                  messages,
+                  game_room_id
 ) values (
                   $1,
                   $2,
                   $3
-) returning game_id, game_room_id, game_state, messages, started_at, finished_at, is_finished, has_started
+) returning game_id, game_room_id, game_state, messages, started_at, finished_at, has_finished, has_started
 `
 
 type CreateGameParams struct {
-	GameRoomID uuid.UUID       `json:"game_room_id"`
 	GameState  json.RawMessage `json:"game_state"`
 	Messages   json.RawMessage `json:"messages"`
+	GameRoomID uuid.UUID       `json:"game_room_id"`
 }
 
 func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, error) {
-	row := q.queryRow(ctx, q.createGameStmt, createGame, arg.GameRoomID, arg.GameState, arg.Messages)
+	row := q.queryRow(ctx, q.createGameStmt, createGame, arg.GameState, arg.Messages, arg.GameRoomID)
 	var i Game
 	err := row.Scan(
 		&i.GameID,
@@ -40,14 +40,14 @@ func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, e
 		&i.Messages,
 		&i.StartedAt,
 		&i.FinishedAt,
-		&i.IsFinished,
+		&i.HasFinished,
 		&i.HasStarted,
 	)
 	return i, err
 }
 
 const finish = `-- name: Finish :exec
-UPDATE games SET is_finished = true, finished_at = now() WHERE game_id = $1
+UPDATE games SET has_finished = true, finished_at = now() WHERE game_id = $1
 `
 
 func (q *Queries) Finish(ctx context.Context, gameID uuid.UUID) error {
@@ -56,7 +56,7 @@ func (q *Queries) Finish(ctx context.Context, gameID uuid.UUID) error {
 }
 
 const getActiveGameByRoomId = `-- name: GetActiveGameByRoomId :many
-SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, is_finished, has_started FROM games WHERE game_room_id = $1 AND is_finished = false
+SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, has_finished, has_started FROM games WHERE game_room_id = $1 AND has_finished = false
 `
 
 func (q *Queries) GetActiveGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error) {
@@ -75,7 +75,7 @@ func (q *Queries) GetActiveGameByRoomId(ctx context.Context, gameRoomID uuid.UUI
 			&i.Messages,
 			&i.StartedAt,
 			&i.FinishedAt,
-			&i.IsFinished,
+			&i.HasFinished,
 			&i.HasStarted,
 		); err != nil {
 			return nil, err
@@ -92,7 +92,7 @@ func (q *Queries) GetActiveGameByRoomId(ctx context.Context, gameRoomID uuid.UUI
 }
 
 const getGame = `-- name: GetGame :one
-SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, is_finished, has_started FROM games WHERE game_id = $1
+SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, has_finished, has_started FROM games WHERE game_id = $1
 `
 
 func (q *Queries) GetGame(ctx context.Context, gameID uuid.UUID) (Game, error) {
@@ -105,14 +105,14 @@ func (q *Queries) GetGame(ctx context.Context, gameID uuid.UUID) (Game, error) {
 		&i.Messages,
 		&i.StartedAt,
 		&i.FinishedAt,
-		&i.IsFinished,
+		&i.HasFinished,
 		&i.HasStarted,
 	)
 	return i, err
 }
 
 const getGameByRoomId = `-- name: GetGameByRoomId :many
-SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, is_finished, has_started FROM games WHERE game_room_id = $1
+SELECT game_id, game_room_id, game_state, messages, started_at, finished_at, has_finished, has_started FROM games WHERE game_room_id = $1
 `
 
 func (q *Queries) GetGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error) {
@@ -131,7 +131,7 @@ func (q *Queries) GetGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]
 			&i.Messages,
 			&i.StartedAt,
 			&i.FinishedAt,
-			&i.IsFinished,
+			&i.HasFinished,
 			&i.HasStarted,
 		); err != nil {
 			return nil, err

@@ -13,14 +13,14 @@ import (
 )
 
 type Game struct {
-	GameID     uuid.UUID       `json:"game_id"`
-	GameRoomID uuid.UUID       `json:"game_room_id"`
-	GameState  json.RawMessage `json:"game_state"`
-	Messages   json.RawMessage `json:"messages"`
-	StartedAt  sql.NullTime    `json:"started_at"`
-	FinishedAt sql.NullTime    `json:"finished_at"`
-	IsFinished bool            `json:"is_finished"`
-	HasStarted bool            `json:"has_started"`
+	GameID      uuid.UUID       `json:"game_id"`
+	GameRoomID  uuid.UUID       `json:"game_room_id"`
+	GameState   json.RawMessage `json:"game_state"`
+	Messages    json.RawMessage `json:"messages"`
+	StartedAt   sql.NullTime    `json:"started_at"`
+	FinishedAt  sql.NullTime    `json:"finished_at"`
+	HasFinished bool            `json:"has_finished"`
+	HasStarted  bool            `json:"has_started"`
 }
 
 type GameRoom struct {

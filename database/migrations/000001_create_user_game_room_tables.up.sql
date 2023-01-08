@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS games(
     messages jsonb  NOT NULL,
     started_at timestamp,
     finished_at timestamp,
-    is_finished boolean NOT NULL default false,
+    has_finished boolean NOT NULL default false,
     has_started boolean NOT NULL default false,
     PRIMARY KEY (game_id),
     FOREIGN KEY (game_room_id) REFERENCES game_rooms(game_room_id)
