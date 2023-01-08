@@ -8,5 +8,5 @@ FROM game_rooms
          JOIN players ON players.player_id = game_room_players.player_id
 WHERE game_rooms.game_room_id = $1;
 
--- name: AddGameRoomPlayer :one
+-- name: AddPlayerToGameRoom :one
 INSERT INTO game_room_players(game_room_id, player_id) values ($1, $2) returning *;

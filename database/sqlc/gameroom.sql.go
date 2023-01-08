@@ -13,17 +13,17 @@ import (
 	"github.com/google/uuid"
 )
 
-const addGameRoomPlayer = `-- name: AddGameRoomPlayer :one
+const addPlayerToGameRoom = `-- name: AddPlayerToGameRoom :one
 INSERT INTO game_room_players(game_room_id, player_id) values ($1, $2) returning game_room_id, player_id
 `
 
-type AddGameRoomPlayerParams struct {
+type AddPlayerToGameRoomParams struct {
 	GameRoomID uuid.UUID `json:"game_room_id"`
 	PlayerID   uuid.UUID `json:"player_id"`
 }
 
-func (q *Queries) AddGameRoomPlayer(ctx context.Context, arg AddGameRoomPlayerParams) (GameRoomPlayer, error) {
-	row := q.queryRow(ctx, q.addGameRoomPlayerStmt, addGameRoomPlayer, arg.GameRoomID, arg.PlayerID)
+func (q *Queries) AddPlayerToGameRoom(ctx context.Context, arg AddPlayerToGameRoomParams) (GameRoomPlayer, error) {
+	row := q.queryRow(ctx, q.addPlayerToGameRoomStmt, addPlayerToGameRoom, arg.GameRoomID, arg.PlayerID)
 	var i GameRoomPlayer
 	err := row.Scan(&i.GameRoomID, &i.PlayerID)
 	return i, err

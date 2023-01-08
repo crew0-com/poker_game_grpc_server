@@ -24,8 +24,8 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
-	if q.addGameRoomPlayerStmt, err = db.PrepareContext(ctx, addGameRoomPlayer); err != nil {
-		return nil, fmt.Errorf("error preparing query AddGameRoomPlayer: %w", err)
+	if q.addPlayerToGameRoomStmt, err = db.PrepareContext(ctx, addPlayerToGameRoom); err != nil {
+		return nil, fmt.Errorf("error preparing query AddPlayerToGameRoom: %w", err)
 	}
 	if q.createGameStmt, err = db.PrepareContext(ctx, createGame); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateGame: %w", err)
@@ -65,9 +65,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
-	if q.addGameRoomPlayerStmt != nil {
-		if cerr := q.addGameRoomPlayerStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing addGameRoomPlayerStmt: %w", cerr)
+	if q.addPlayerToGameRoomStmt != nil {
+		if cerr := q.addPlayerToGameRoomStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing addPlayerToGameRoomStmt: %w", cerr)
 		}
 	}
 	if q.createGameStmt != nil {
@@ -164,7 +164,7 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                           DBTX
 	tx                           *sql.Tx
-	addGameRoomPlayerStmt        *sql.Stmt
+	addPlayerToGameRoomStmt      *sql.Stmt
 	createGameStmt               *sql.Stmt
 	createGameRoomStmt           *sql.Stmt
 	createPlayerStmt             *sql.Stmt
@@ -182,7 +182,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                           tx,
 		tx:                           tx,
-		addGameRoomPlayerStmt:        q.addGameRoomPlayerStmt,
+		addPlayerToGameRoomStmt:      q.addPlayerToGameRoomStmt,
 		createGameStmt:               q.createGameStmt,
 		createGameRoomStmt:           q.createGameRoomStmt,
 		createPlayerStmt:             q.createPlayerStmt,
