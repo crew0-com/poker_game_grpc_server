@@ -61,6 +61,11 @@ func (store *SQLStore) GetGameRoomWithPlayers(ctx context.Context, gameRoomID uu
 		return
 	}
 
+	if len(gameRoomRows) == 0 {
+		err = sql.ErrNoRows
+		return
+	}
+
 	createdBy := gameRoomRows[0].CreatedBy
 	createdByPlayer, err := store.GetPlayer(ctx, createdBy)
 	if err != nil {
