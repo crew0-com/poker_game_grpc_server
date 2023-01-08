@@ -4,13 +4,6 @@ package pb;
 
 option go_package="github.com/crew_0/poker/internal/grpc/pb";
 
-message Requester {
-    Player player = 1;
-    // TODO: for now token only contains the UUID of the player
-    // but in the future it will contain a JWT token
-    string token = 2;
-}
-
 message Player {
     string uuid = 1;
     string name = 2;

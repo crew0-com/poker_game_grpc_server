@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package="github.com/crew_0/poker/internal/grpc/pb";
+
+message Requester {
+  string name = 1;
+  // TODO: for now token only contains the UUID of the player
+  // but in the future it will contain a JWT token
+  string token = 2;
+}

@@ -9,7 +9,7 @@ option go_package="github.com/crew_0/poker/internal/grpc/pb";
 
 message GameRoom {
   string id = 1;
-  string name = 2;
+  string created_by = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp closed_at = 4;
   repeated Player players = 5;
