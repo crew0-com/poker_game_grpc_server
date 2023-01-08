@@ -12,6 +12,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type ActiveGameInGameRoom struct {
+	GameRoomID uuid.UUID `json:"game_room_id"`
+	GameID     uuid.UUID `json:"game_id"`
+}
+
 type Game struct {
 	GameID      uuid.UUID       `json:"game_id"`
 	GameRoomID  uuid.UUID       `json:"game_room_id"`

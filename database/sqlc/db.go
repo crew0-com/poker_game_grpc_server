@@ -36,20 +36,17 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createPlayerStmt, err = db.PrepareContext(ctx, createPlayer); err != nil {
 		return nil, fmt.Errorf("error preparing query CreatePlayer: %w", err)
 	}
-	if q.finishStmt, err = db.PrepareContext(ctx, finish); err != nil {
-		return nil, fmt.Errorf("error preparing query Finish: %w", err)
-	}
-	if q.getActiveGameByRoomIdStmt, err = db.PrepareContext(ctx, getActiveGameByRoomId); err != nil {
-		return nil, fmt.Errorf("error preparing query GetActiveGameByRoomId: %w", err)
+	if q.finishGameStmt, err = db.PrepareContext(ctx, finishGame); err != nil {
+		return nil, fmt.Errorf("error preparing query FinishGame: %w", err)
 	}
 	if q.getGameStmt, err = db.PrepareContext(ctx, getGame); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGame: %w", err)
 	}
-	if q.getGameByRoomIdStmt, err = db.PrepareContext(ctx, getGameByRoomId); err != nil {
-		return nil, fmt.Errorf("error preparing query GetGameByRoomId: %w", err)
-	}
 	if q.getGameRoomAndPlayerRowsStmt, err = db.PrepareContext(ctx, getGameRoomAndPlayerRows); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGameRoomAndPlayerRows: %w", err)
+	}
+	if q.getGamesByRoomIdStmt, err = db.PrepareContext(ctx, getGamesByRoomId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetGamesByRoomId: %w", err)
 	}
 	if q.getPlayerStmt, err = db.PrepareContext(ctx, getPlayer); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPlayer: %w", err)
@@ -85,14 +82,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createPlayerStmt: %w", cerr)
 		}
 	}
-	if q.finishStmt != nil {
-		if cerr := q.finishStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing finishStmt: %w", cerr)
-		}
-	}
-	if q.getActiveGameByRoomIdStmt != nil {
-		if cerr := q.getActiveGameByRoomIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getActiveGameByRoomIdStmt: %w", cerr)
+	if q.finishGameStmt != nil {
+		if cerr := q.finishGameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing finishGameStmt: %w", cerr)
 		}
 	}
 	if q.getGameStmt != nil {
@@ -100,14 +92,14 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getGameStmt: %w", cerr)
 		}
 	}
-	if q.getGameByRoomIdStmt != nil {
-		if cerr := q.getGameByRoomIdStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getGameByRoomIdStmt: %w", cerr)
-		}
-	}
 	if q.getGameRoomAndPlayerRowsStmt != nil {
 		if cerr := q.getGameRoomAndPlayerRowsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getGameRoomAndPlayerRowsStmt: %w", cerr)
+		}
+	}
+	if q.getGamesByRoomIdStmt != nil {
+		if cerr := q.getGamesByRoomIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getGamesByRoomIdStmt: %w", cerr)
 		}
 	}
 	if q.getPlayerStmt != nil {
@@ -168,11 +160,10 @@ type Queries struct {
 	createGameStmt               *sql.Stmt
 	createGameRoomStmt           *sql.Stmt
 	createPlayerStmt             *sql.Stmt
-	finishStmt                   *sql.Stmt
-	getActiveGameByRoomIdStmt    *sql.Stmt
+	finishGameStmt               *sql.Stmt
 	getGameStmt                  *sql.Stmt
-	getGameByRoomIdStmt          *sql.Stmt
 	getGameRoomAndPlayerRowsStmt *sql.Stmt
+	getGamesByRoomIdStmt         *sql.Stmt
 	getPlayerStmt                *sql.Stmt
 	startGameStmt                *sql.Stmt
 	updateGameStmt               *sql.Stmt
@@ -186,11 +177,10 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createGameStmt:               q.createGameStmt,
 		createGameRoomStmt:           q.createGameRoomStmt,
 		createPlayerStmt:             q.createPlayerStmt,
-		finishStmt:                   q.finishStmt,
-		getActiveGameByRoomIdStmt:    q.getActiveGameByRoomIdStmt,
+		finishGameStmt:               q.finishGameStmt,
 		getGameStmt:                  q.getGameStmt,
-		getGameByRoomIdStmt:          q.getGameByRoomIdStmt,
 		getGameRoomAndPlayerRowsStmt: q.getGameRoomAndPlayerRowsStmt,
+		getGamesByRoomIdStmt:         q.getGamesByRoomIdStmt,
 		getPlayerStmt:                q.getPlayerStmt,
 		startGameStmt:                q.startGameStmt,
 		updateGameStmt:               q.updateGameStmt,

@@ -12,18 +12,15 @@ INSERT INTO games(
 -- name: GetGame :one
 SELECT * FROM games WHERE game_id = $1;
 
--- name: UpdateGame :exec
-UPDATE games SET game_state = $2, messages = $3 WHERE game_id = $1;
+-- name: UpdateGame :one
+UPDATE games SET game_state = $2, messages = $3 WHERE game_id = $1 returning *;
 
--- name: StartGame :exec
-UPDATE games SET has_started = true, started_at = now() WHERE game_id = $1;
+-- name: StartGame :one
+UPDATE games SET has_started = true, started_at = now() WHERE game_id = $1 returning *;
 
--- name: Finish :exec
-UPDATE games SET has_finished = true, finished_at = now() WHERE game_id = $1;
+-- name: FinishGame :one
+UPDATE games SET has_finished = true, finished_at = now() WHERE game_id = $1 returning *;
 
--- name: GetGameByRoomId :many
+-- name: GetGamesByRoomId :many
 SELECT * FROM games WHERE game_room_id = $1;
-
--- name: GetActiveGameByRoomId :many
-SELECT * FROM games WHERE game_room_id = $1 AND has_finished = false;
 
