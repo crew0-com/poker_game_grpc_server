@@ -17,7 +17,7 @@ func (s *Server) CreateGameRoom(ctx context.Context, req *pb.CreateGameRoomReque
 	}
 
 	// Create the player if they don't exist
-	_, err = s.store.GetOrCreatePlayer(ctx, db.GetOrCreatePlayerParams{
+	creator, err := s.store.GetOrCreatePlayer(ctx, db.GetOrCreatePlayerParams{
 		PlayerId:   playerId,
 		Playername: req.GetRequester().GetName(),
 	})
@@ -34,8 +34,11 @@ func (s *Server) CreateGameRoom(ctx context.Context, req *pb.CreateGameRoomReque
 		GameRoom: &pb.GameRoom{
 			Id:        gr.GameRoomID.String(),
 			CreatedAt: timestamppb.New(gr.CreatedAt),
-			CreatedBy: gr.CreatedBy.String(),
-			Players:   []*pb.Player{},
+			CreatedBy: &pb.Player{
+				Uuid: creator.PlayerID.String(),
+				Name: creator.Name,
+			},
+			Players: []*pb.Player{},
 		},
 	}, nil
 }
