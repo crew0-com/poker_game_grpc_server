@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package pb;
+import "player.proto";
+import "game.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package="github.com/crew_0/poker/internal/grpc/pb";
+
+message GameRoom {
+  string id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp closed_at = 4;
+  repeated Player players = 5;
+  Game game = 6;
+}

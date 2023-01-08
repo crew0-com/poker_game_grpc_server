@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+import "google/protobuf/timestamp.proto";
+
+option go_package="github.com/crew_0/poker/internal/grpc/pb";
+
+message Game {
+  string id = 1;
+  string game_state = 2;
+  repeated string messages = 3;
+  google.protobuf.Timestamp started_at = 4;
+  google.protobuf.Timestamp finished_at = 5;
+  bool is_finished = 6;
+  bool has_started = 7;
+}

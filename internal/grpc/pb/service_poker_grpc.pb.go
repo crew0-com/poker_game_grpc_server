@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PokerServiceClient interface {
-	Hello(ctx context.Context, in *HelloWorldRequest, opts ...grpc.CallOption) (*HelloWorldResponse, error)
+	CreateGameRoom(ctx context.Context, in *CreateGameRoomRequest, opts ...grpc.CallOption) (*CreateGameRoomResponse, error)
 }
 
 type pokerServiceClient struct {
@@ -33,9 +33,9 @@ func NewPokerServiceClient(cc grpc.ClientConnInterface) PokerServiceClient {
 	return &pokerServiceClient{cc}
 }
 
-func (c *pokerServiceClient) Hello(ctx context.Context, in *HelloWorldRequest, opts ...grpc.CallOption) (*HelloWorldResponse, error) {
-	out := new(HelloWorldResponse)
-	err := c.cc.Invoke(ctx, "/pb.PokerService/Hello", in, out, opts...)
+func (c *pokerServiceClient) CreateGameRoom(ctx context.Context, in *CreateGameRoomRequest, opts ...grpc.CallOption) (*CreateGameRoomResponse, error) {
+	out := new(CreateGameRoomResponse)
+	err := c.cc.Invoke(ctx, "/pb.PokerService/CreateGameRoom", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *pokerServiceClient) Hello(ctx context.Context, in *HelloWorldRequest, o
 // All implementations must embed UnimplementedPokerServiceServer
 // for forward compatibility
 type PokerServiceServer interface {
-	Hello(context.Context, *HelloWorldRequest) (*HelloWorldResponse, error)
+	CreateGameRoom(context.Context, *CreateGameRoomRequest) (*CreateGameRoomResponse, error)
 	mustEmbedUnimplementedPokerServiceServer()
 }
 
@@ -54,8 +54,8 @@ type PokerServiceServer interface {
 type UnimplementedPokerServiceServer struct {
 }
 
-func (UnimplementedPokerServiceServer) Hello(context.Context, *HelloWorldRequest) (*HelloWorldResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Hello not implemented")
+func (UnimplementedPokerServiceServer) CreateGameRoom(context.Context, *CreateGameRoomRequest) (*CreateGameRoomResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGameRoom not implemented")
 }
 func (UnimplementedPokerServiceServer) mustEmbedUnimplementedPokerServiceServer() {}
 
@@ -70,20 +70,20 @@ func RegisterPokerServiceServer(s grpc.ServiceRegistrar, srv PokerServiceServer)
 	s.RegisterService(&PokerService_ServiceDesc, srv)
 }
 
-func _PokerService_Hello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloWorldRequest)
+func _PokerService_CreateGameRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateGameRoomRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PokerServiceServer).Hello(ctx, in)
+		return srv.(PokerServiceServer).CreateGameRoom(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.PokerService/Hello",
+		FullMethod: "/pb.PokerService/CreateGameRoom",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PokerServiceServer).Hello(ctx, req.(*HelloWorldRequest))
+		return srv.(PokerServiceServer).CreateGameRoom(ctx, req.(*CreateGameRoomRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +96,8 @@ var PokerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*PokerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Hello",
-			Handler:    _PokerService_Hello_Handler,
+			MethodName: "CreateGameRoom",
+			Handler:    _PokerService_CreateGameRoom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

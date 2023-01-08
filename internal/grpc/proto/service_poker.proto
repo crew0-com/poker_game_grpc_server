@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package pb;
 
-import "rpc_hello_world.proto";
+import "rpc_create_game_room.proto";
 
 option go_package="github.com/crew_0/poker/internal/grpc/pb";
 
 service PokerService {
-  rpc Hello(HelloWorldRequest) returns (HelloWorldResponse);
+  rpc CreateGameRoom(CreateGameRoomRequest) returns (CreateGameRoomResponse) {}
 }

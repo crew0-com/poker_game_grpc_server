@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pb;
+import "gameroom.proto";
+
+option go_package="github.com/crew_0/poker/internal/grpc/pb";
+
+message CreateGameRoomRequest {
+  string name = 1;
+}
+
+message CreateGameRoomResponse {
+  GameRoom game_room = 1;
+}
