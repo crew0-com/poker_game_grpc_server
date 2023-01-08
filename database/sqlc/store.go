@@ -67,7 +67,7 @@ func (store *SQLStore) GetGameRoomWithPlayers(ctx context.Context, gameRoomID uu
 		return
 	}
 
-	gameRoom.GameRoomID = gameRoomRows[0].GameroomID
+	gameRoom.GameRoomID = gameRoomRows[0].GameRoomID
 	gameRoom.CreatedAt = gameRoomRows[0].CreatedAt
 	gameRoom.ClosedAt = gameRoomRows[0].ClosedAt
 	gameRoom.CreatedBy = createdByPlayer

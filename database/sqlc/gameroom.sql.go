@@ -46,7 +46,7 @@ func (q *Queries) CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (Game
 }
 
 const getGameRoomAndPlayerRows = `-- name: GetGameRoomAndPlayerRows :many
-SELECT game_rooms.game_room_id AS gameroom_id, game_rooms.created_at, game_rooms.created_by, game_rooms.closed_at, players.name, players.player_id
+SELECT game_rooms.game_room_id AS game_room_id, game_rooms.created_at, game_rooms.created_by, game_rooms.closed_at, players.name, players.player_id
 FROM game_rooms
          JOIN game_room_players ON game_room_players.game_room_id = game_rooms.game_room_id
          JOIN players ON players.player_id = game_room_players.player_id
@@ -54,7 +54,7 @@ WHERE game_rooms.game_room_id = $1
 `
 
 type GetGameRoomAndPlayerRowsRow struct {
-	GameroomID uuid.UUID    `json:"gameroom_id"`
+	GameRoomID uuid.UUID    `json:"game_room_id"`
 	CreatedAt  time.Time    `json:"created_at"`
 	CreatedBy  uuid.UUID    `json:"created_by"`
 	ClosedAt   sql.NullTime `json:"closed_at"`
@@ -72,7 +72,7 @@ func (q *Queries) GetGameRoomAndPlayerRows(ctx context.Context, gameRoomID uuid.
 	for rows.Next() {
 		var i GetGameRoomAndPlayerRowsRow
 		if err := rows.Scan(
-			&i.GameroomID,
+			&i.GameRoomID,
 			&i.CreatedAt,
 			&i.CreatedBy,
 			&i.ClosedAt,
