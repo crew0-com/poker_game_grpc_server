@@ -19,7 +19,7 @@ type Querier interface {
 	GetActiveGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error)
 	GetGame(ctx context.Context, gameID uuid.UUID) (Game, error)
 	GetGameByRoomId(ctx context.Context, gameRoomID uuid.UUID) ([]Game, error)
-	GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRoom, error)
+	GetGameRoomWithPlayers(ctx context.Context, gameRoomID uuid.UUID) ([]GetGameRoomWithPlayersRow, error)
 	GetPlayer(ctx context.Context, playerID uuid.UUID) (Player, error)
 	StartGame(ctx context.Context, gameID uuid.UUID) error
 	UpdateGame(ctx context.Context, arg UpdateGameParams) error

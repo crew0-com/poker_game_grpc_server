@@ -48,8 +48,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getGameByRoomIdStmt, err = db.PrepareContext(ctx, getGameByRoomId); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGameByRoomId: %w", err)
 	}
-	if q.getGameRoomStmt, err = db.PrepareContext(ctx, getGameRoom); err != nil {
-		return nil, fmt.Errorf("error preparing query GetGameRoom: %w", err)
+	if q.getGameRoomWithPlayersStmt, err = db.PrepareContext(ctx, getGameRoomWithPlayers); err != nil {
+		return nil, fmt.Errorf("error preparing query GetGameRoomWithPlayers: %w", err)
 	}
 	if q.getPlayerStmt, err = db.PrepareContext(ctx, getPlayer); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPlayer: %w", err)
@@ -105,9 +105,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getGameByRoomIdStmt: %w", cerr)
 		}
 	}
-	if q.getGameRoomStmt != nil {
-		if cerr := q.getGameRoomStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getGameRoomStmt: %w", cerr)
+	if q.getGameRoomWithPlayersStmt != nil {
+		if cerr := q.getGameRoomWithPlayersStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getGameRoomWithPlayersStmt: %w", cerr)
 		}
 	}
 	if q.getPlayerStmt != nil {
@@ -162,37 +162,37 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                        DBTX
-	tx                        *sql.Tx
-	addGameRoomPlayerStmt     *sql.Stmt
-	createGameStmt            *sql.Stmt
-	createGameRoomStmt        *sql.Stmt
-	createPlayerStmt          *sql.Stmt
-	finishStmt                *sql.Stmt
-	getActiveGameByRoomIdStmt *sql.Stmt
-	getGameStmt               *sql.Stmt
-	getGameByRoomIdStmt       *sql.Stmt
-	getGameRoomStmt           *sql.Stmt
-	getPlayerStmt             *sql.Stmt
-	startGameStmt             *sql.Stmt
-	updateGameStmt            *sql.Stmt
+	db                         DBTX
+	tx                         *sql.Tx
+	addGameRoomPlayerStmt      *sql.Stmt
+	createGameStmt             *sql.Stmt
+	createGameRoomStmt         *sql.Stmt
+	createPlayerStmt           *sql.Stmt
+	finishStmt                 *sql.Stmt
+	getActiveGameByRoomIdStmt  *sql.Stmt
+	getGameStmt                *sql.Stmt
+	getGameByRoomIdStmt        *sql.Stmt
+	getGameRoomWithPlayersStmt *sql.Stmt
+	getPlayerStmt              *sql.Stmt
+	startGameStmt              *sql.Stmt
+	updateGameStmt             *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                        tx,
-		tx:                        tx,
-		addGameRoomPlayerStmt:     q.addGameRoomPlayerStmt,
-		createGameStmt:            q.createGameStmt,
-		createGameRoomStmt:        q.createGameRoomStmt,
-		createPlayerStmt:          q.createPlayerStmt,
-		finishStmt:                q.finishStmt,
-		getActiveGameByRoomIdStmt: q.getActiveGameByRoomIdStmt,
-		getGameStmt:               q.getGameStmt,
-		getGameByRoomIdStmt:       q.getGameByRoomIdStmt,
-		getGameRoomStmt:           q.getGameRoomStmt,
-		getPlayerStmt:             q.getPlayerStmt,
-		startGameStmt:             q.startGameStmt,
-		updateGameStmt:            q.updateGameStmt,
+		db:                         tx,
+		tx:                         tx,
+		addGameRoomPlayerStmt:      q.addGameRoomPlayerStmt,
+		createGameStmt:             q.createGameStmt,
+		createGameRoomStmt:         q.createGameRoomStmt,
+		createPlayerStmt:           q.createPlayerStmt,
+		finishStmt:                 q.finishStmt,
+		getActiveGameByRoomIdStmt:  q.getActiveGameByRoomIdStmt,
+		getGameStmt:                q.getGameStmt,
+		getGameByRoomIdStmt:        q.getGameByRoomIdStmt,
+		getGameRoomWithPlayersStmt: q.getGameRoomWithPlayersStmt,
+		getPlayerStmt:              q.getPlayerStmt,
+		startGameStmt:              q.startGameStmt,
+		updateGameStmt:             q.updateGameStmt,
 	}
 }

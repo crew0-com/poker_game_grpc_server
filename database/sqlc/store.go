@@ -14,6 +14,7 @@ type GetOrCreatePlayerParams struct {
 type Store interface {
 	Querier
 	GetOrCreatePlayer(ctx context.Context, arg GetOrCreatePlayerParams) (Player, error)
+	GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRoomWithPlayers, error)
 }
 
 type SQLStore struct {
@@ -46,4 +47,37 @@ func (store *SQLStore) GetOrCreatePlayer(ctx context.Context, arg GetOrCreatePla
 	}
 
 	return
+}
+
+type GameRoomWithPlayers struct {
+	GameRoom
+	CreatedBy Player
+	Players   []Player
+}
+
+func (store *SQLStore) GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (gameRoom GameRoomWithPlayers, err error) {
+	gameRoomRows, err := store.Queries.GetGameRoomWithPlayers(ctx, gameRoomID)
+	if err != nil {
+		return
+	}
+
+	createdBy := gameRoomRows[0].CreatedBy
+	createdByPlayer, err := store.GetPlayer(ctx, createdBy)
+	if err != nil {
+		return
+	}
+
+	gameRoom.GameRoomID = gameRoomRows[0].GameroomID
+	gameRoom.CreatedAt = gameRoomRows[0].CreatedAt
+	gameRoom.ClosedAt = gameRoomRows[0].ClosedAt
+	gameRoom.CreatedBy = createdByPlayer
+
+	for _, row := range gameRoomRows {
+		gameRoom.Players = append(gameRoom.Players, Player{
+			PlayerID: row.PlayerID,
+			Name:     row.Name,
+		})
+	}
+
+	return gameRoom, nil
 }

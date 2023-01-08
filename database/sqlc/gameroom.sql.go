@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -43,18 +45,49 @@ func (q *Queries) CreateGameRoom(ctx context.Context, createdBy uuid.UUID) (Game
 	return i, err
 }
 
-const getGameRoom = `-- name: GetGameRoom :one
-SELECT game_room_id, created_by, created_at, closed_at FROM game_rooms WHERE game_room_id = $1
+const getGameRoomWithPlayers = `-- name: GetGameRoomWithPlayers :many
+SELECT game_rooms.game_room_id AS gameroom_id, game_rooms.created_at, game_rooms.created_by, game_rooms.closed_at, players.name, players.player_id
+FROM game_rooms
+         JOIN game_room_players ON game_room_players.game_room_id = game_rooms.game_room_id
+         JOIN players ON players.player_id = game_room_players.player_id
+WHERE game_rooms.game_room_id = $1
 `
 
-func (q *Queries) GetGameRoom(ctx context.Context, gameRoomID uuid.UUID) (GameRoom, error) {
-	row := q.queryRow(ctx, q.getGameRoomStmt, getGameRoom, gameRoomID)
-	var i GameRoom
-	err := row.Scan(
-		&i.GameRoomID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ClosedAt,
-	)
-	return i, err
+type GetGameRoomWithPlayersRow struct {
+	GameroomID uuid.UUID    `json:"gameroom_id"`
+	CreatedAt  time.Time    `json:"created_at"`
+	CreatedBy  uuid.UUID    `json:"created_by"`
+	ClosedAt   sql.NullTime `json:"closed_at"`
+	Name       string       `json:"name"`
+	PlayerID   uuid.UUID    `json:"player_id"`
+}
+
+func (q *Queries) GetGameRoomWithPlayers(ctx context.Context, gameRoomID uuid.UUID) ([]GetGameRoomWithPlayersRow, error) {
+	rows, err := q.query(ctx, q.getGameRoomWithPlayersStmt, getGameRoomWithPlayers, gameRoomID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetGameRoomWithPlayersRow{}
+	for rows.Next() {
+		var i GetGameRoomWithPlayersRow
+		if err := rows.Scan(
+			&i.GameroomID,
+			&i.CreatedAt,
+			&i.CreatedBy,
+			&i.ClosedAt,
+			&i.Name,
+			&i.PlayerID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
