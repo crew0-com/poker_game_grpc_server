@@ -36,7 +36,7 @@ func (s *Server) JoinGameRoom(ctx context.Context, req *pb.JoinGameRoomRequest) 
 		return nil, status.Errorf(codes.Internal, "Error adding player to game room: %s", err)
 	}
 
-	gameRoom, err := s.store.GetGameRoomWithPlayers(ctx, gameRoomId)
+	gameRoom, err := s.store.GetGameRoomAndPlayers(ctx, gameRoomId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Error getting game room: %s", err)
 	}

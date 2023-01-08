@@ -55,7 +55,7 @@ func TestSQLStore_GetGameRoomWithPlayers(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		gameRoomWithPlayers, err := store.GetGameRoomWithPlayers(context.Background(), gameRoom.GameRoomID)
+		gameRoomWithPlayers, err := store.GetGameRoomAndPlayers(context.Background(), gameRoom.GameRoomID)
 		require.NoError(t, err)
 		require.NotEmpty(t, gameRoomWithPlayers)
 		require.Equal(t, gameRoom.GameRoomID, gameRoomWithPlayers.GameRoomID)
@@ -67,13 +67,13 @@ func TestSQLStore_GetGameRoomWithPlayers(t *testing.T) {
 	})
 
 	t.Run("Should return error if gameroom is not found ", func(t *testing.T) {
-		_, err := store.GetGameRoomWithPlayers(context.Background(), uuid.New())
+		_, err := store.GetGameRoomAndPlayers(context.Background(), uuid.New())
 		require.Error(t, err)
 	})
 
 	t.Run("Should return error if gameroom has no players ", func(t *testing.T) {
 		gameRoom := CreateRandomGameRoomTest(t)
-		_, err := store.GetGameRoomWithPlayers(context.Background(), gameRoom.GameRoomID)
+		_, err := store.GetGameRoomAndPlayers(context.Background(), gameRoom.GameRoomID)
 		require.Error(t, err)
 	})
 }
