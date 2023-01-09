@@ -2,15 +2,13 @@
 [Inprogress] Poker game grpc server, that uses SQLC and no frameworks
 
 ## Everything is in progress
-Things that are working
-* SQLC
-* DB Migrations
-* Skeleton GRPC server
-* Models based on DB Schema for GameRoom, Game, Player
-* Unit tests for models
-* GRPC server can create a GameRoom
-
-Things to do:
+Roadmap:
+- [x] **SQLC**
+- [x] **DB Migrations**
+- [x] **Skeleton GRPC server**
+- [x] **Models based on DB Schema for GameRoom, Game, Player**
+- [x] **Unit tests for models**
+- [x] **GRPC server can create a GameRoom**
 - [ ] GRPC server can create a Game
 - [ ] JOIN GameRoom
 - [ ] LEAVE GameRoom
